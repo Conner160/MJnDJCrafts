@@ -1,3 +1,8 @@
+/* Color variables */
+:root {
+    --main-color: #7b5fa9;
+    --secondary-color: #b84c65;
+}
 /* Reset and base styles */
 * {
     margin: 0;
@@ -20,7 +25,7 @@ body {
 
 /* Header and Navigation */
 .navbar {
-    background-color: #ea7bc5;
+    background-color: var(--main-color);
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 0;
@@ -61,7 +66,7 @@ body {
 .nav-link:hover,
 .nav-link.active {
     background-color: rgba(255, 255, 255, 0.1);
-    color: #f8e6f1;
+    color: var(--secondary-color);
 }
 
 /* Mobile menu hamburger */
@@ -106,7 +111,7 @@ body {
 .cta-button {
     display: inline-block;
     background-color: #fff;
-    color: #ea7bc5;
+    color: var(--main-color);
     padding: 15px 30px;
     text-decoration: none;
     border-radius: 30px;
@@ -119,7 +124,8 @@ body {
 .cta-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
-    background-color: #f8e6f1;
+    background-color: var(--secondary-color);
+    color: #fff;
 }
 
 /* Featured Work Section */
@@ -132,7 +138,7 @@ body {
     text-align: center;
     font-size: 2.5rem;
     margin-bottom: 3rem;
-    color: #ea7bc5;
+    color: var(--main-color);
 }
 
 .work-grid {
@@ -158,7 +164,7 @@ body {
 
 .work-image-placeholder {
     height: 200px;
-    background: linear-gradient(45deg, #ea7bc5, #e566e5);
+    background: linear-gradient(45deg, var(--main-color), var(--secondary-color));
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -171,7 +177,7 @@ body {
 }
 
 .work-item h3 {
-    color: #ea7bc5;
+    color: var(--main-color);
     margin-bottom: 1rem;
     font-size: 1.3rem;
 }
@@ -191,7 +197,7 @@ body {
 .about-preview h2 {
     font-size: 2.5rem;
     margin-bottom: 2rem;
-    color: #ea7bc5;
+    color: var(--main-color);
 }
 
 .about-preview p {
@@ -265,7 +271,7 @@ footer {
 
 /* Page Header */
 .page-header {
-    background: linear-gradient(135deg, #ea7bc5 0%, #e566e5 100%);
+    background: linear-gradient(135deg, var(--main-color) 0%, var(--secondary-color) 100%);
     color: white;
     text-align: center;
     padding: 60px 20px;
@@ -322,7 +328,7 @@ footer {
 }
 
 .gallery-info h3 {
-    color: #ea7bc5;
+    color: var(--main-color);
     margin-bottom: 0.5rem;
     font-size: 1.2rem;
 }
@@ -415,7 +421,7 @@ footer {
 .craftsperson-image-placeholder {
     width: 120px;
     height: 120px;
-    background: linear-gradient(45deg, #ea7bc5, #e566e5);
+    background: linear-gradient(45deg, var(--main-color), var(--secondary-color));
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -428,7 +434,7 @@ footer {
 }
 
 .craftsperson h3 {
-    color: #ea7bc5;
+    color: var(--main-color);
     margin-bottom: 1rem;
     font-size: 1.3rem;
 }
@@ -513,7 +519,7 @@ footer {
 }
 
 .submit-button {
-    background-color: #ea7bc5;
+    background-color: var(--main-color);
     color: white;
     padding: 12px 25px;
     border: none;
@@ -525,7 +531,7 @@ footer {
 }
 
 .submit-button:hover {
-    background-color: #e566e5;
+    background-color: var(--secondary-color);
     transform: translateY(-2px);
 }
 
@@ -538,7 +544,7 @@ footer {
 }
 
 .contact-cta h2 {
-    color: #ea7bc5;
+    color: var(--main-color);
     margin-bottom: 1rem;
     font-size: 1.8rem;
 }
@@ -563,7 +569,7 @@ footer {
 }
 
 .shop-intro h2 {
-    color: #ea7bc5;
+    color: var(--main-color);
     margin-bottom: 1rem;
     font-size: 2rem;
 }

@@ -1,0 +1,46 @@
+{
+  "products": [
+    {
+      "id": "necklace",
+      "name": "Elegant Beaded Necklace",
+      "price": 45.00,
+      "description": "Beautiful handcrafted necklace with natural gemstones",
+      "imagePlaceholder": "Handmade Necklace"
+    },
+    {
+      "id": "ceramic-bowl",
+      "name": "Hand-painted Ceramic Bowl",
+      "price": 32.00,
+      "description": "Unique ceramic bowl with hand-painted floral design",
+      "imagePlaceholder": "Ceramic Bowl"
+    },
+    {
+      "id": "wooden-bird",
+      "name": "Carved Wooden Bird",
+      "price": 78.00,
+      "description": "Intricately carved wooden bird sculpture",
+      "imagePlaceholder": "Wooden Sculpture"
+    },
+    {
+      "id": "quilted-wall",
+      "name": "Quilted Wall Hanging",
+      "price": 125.00,
+      "description": "Beautiful quilted wall art with geometric patterns",
+      "imagePlaceholder": "Fabric Wall Art"
+    },
+    {
+      "id": "glass-suncatcher",
+      "name": "Stained Glass Suncatcher",
+      "price": 28.00,
+      "description": "Colorful stained glass suncatcher for windows",
+      "imagePlaceholder": "Glass Ornament"
+    },
+    {
+      "id": "leather-wallet",
+      "name": "Handcrafted Leather Wallet",
+      "price": 65.00,
+      "description": "Premium leather wallet with hand-stitched details",
+      "imagePlaceholder": "Leather Wallet"
+    }
+  ]
+}

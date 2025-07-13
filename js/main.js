@@ -55,9 +55,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         
         if (scrollTop > 100) {
-            navbar.style.backgroundColor = 'rgba(234, 123, 197, 0.95)';
+            navbar.style.backgroundColor = 'rgba(123, 95, 169, 0.95)'; // #7b5fa9 with opacity
         } else {
-            navbar.style.backgroundColor = '#ea7bc5';
+            navbar.style.backgroundColor = '#7b5fa9';
         }
         
         lastScrollTop = scrollTop;
@@ -95,7 +95,7 @@ function showMessage(message) {
         position: fixed;
         top: 20px;
         right: 20px;
-        background: #ea7bc5;
+        background: #7b5fa9;
         color: white;
         padding: 15px 20px;
         border-radius: 5px;

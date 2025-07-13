@@ -57,78 +57,8 @@
 
                 <div class="shop-preview">
                     <h2>Featured Items</h2>
-                    <div class="shop-grid">
-                        <div class="shop-item">
-                            <div class="shop-image-placeholder">
-                                <span>Handmade Necklace</span>
-                            </div>
-                            <div class="shop-info">
-                                <h3>Elegant Beaded Necklace</h3>
-                                <p class="shop-price">$45.00</p>
-                                <p class="shop-description">Beautiful handcrafted necklace with natural gemstones</p>
-                                <button class="shop-button" onclick="showMessage('Please contact us to purchase this item!')">Contact for Purchase</button>
-                            </div>
-                        </div>
-                        
-                        <div class="shop-item">
-                            <div class="shop-image-placeholder">
-                                <span>Ceramic Bowl</span>
-                            </div>
-                            <div class="shop-info">
-                                <h3>Hand-painted Ceramic Bowl</h3>
-                                <p class="shop-price">$32.00</p>
-                                <p class="shop-description">Unique ceramic bowl with hand-painted floral design</p>
-                                <button class="shop-button" onclick="showMessage('Please contact us to purchase this item!')">Contact for Purchase</button>
-                            </div>
-                        </div>
-                        
-                        <div class="shop-item">
-                            <div class="shop-image-placeholder">
-                                <span>Wooden Sculpture</span>
-                            </div>
-                            <div class="shop-info">
-                                <h3>Carved Wooden Bird</h3>
-                                <p class="shop-price">$78.00</p>
-                                <p class="shop-description">Intricately carved wooden bird sculpture</p>
-                                <button class="shop-button" onclick="showMessage('Please contact us to purchase this item!')">Contact for Purchase</button>
-                            </div>
-                        </div>
-                        
-                        <div class="shop-item">
-                            <div class="shop-image-placeholder">
-                                <span>Fabric Wall Art</span>
-                            </div>
-                            <div class="shop-info">
-                                <h3>Quilted Wall Hanging</h3>
-                                <p class="shop-price">$125.00</p>
-                                <p class="shop-description">Beautiful quilted wall art with geometric patterns</p>
-                                <button class="shop-button" onclick="showMessage('Please contact us to purchase this item!')">Contact for Purchase</button>
-                            </div>
-                        </div>
-                        
-                        <div class="shop-item">
-                            <div class="shop-image-placeholder">
-                                <span>Glass Ornament</span>
-                            </div>
-                            <div class="shop-info">
-                                <h3>Stained Glass Suncatcher</h3>
-                                <p class="shop-price">$28.00</p>
-                                <p class="shop-description">Colorful stained glass suncatcher for windows</p>
-                                <button class="shop-button" onclick="showMessage('Please contact us to purchase this item!')">Contact for Purchase</button>
-                            </div>
-                        </div>
-                        
-                        <div class="shop-item">
-                            <div class="shop-image-placeholder">
-                                <span>Leather Wallet</span>
-                            </div>
-                            <div class="shop-info">
-                                <h3>Handcrafted Leather Wallet</h3>
-                                <p class="shop-price">$65.00</p>
-                                <p class="shop-description">Premium leather wallet with hand-stitched details</p>
-                                <button class="shop-button" onclick="showMessage('Please contact us to purchase this item!')">Contact for Purchase</button>
-                            </div>
-                        </div>
+                    <div class="shop-grid" id="shopGrid">
+                        <!-- Products will be loaded dynamically here -->
                     </div>
                 </div>
 
@@ -169,5 +99,32 @@
     </footer>
 
     <script src="../js/main.js"></script>
+    <script>
+        // Load and display products when page loads
+        document.addEventListener('DOMContentLoaded', async function() {
+            const products = await loadProducts();
+            const shopGrid = document.getElementById('shopGrid');
+            
+            if (products.length === 0) {
+                shopGrid.innerHTML = '<p>Sorry, products could not be loaded at this time.</p>';
+                return;
+            }
+            
+            // Generate HTML for each product
+            shopGrid.innerHTML = products.map(product => `
+                <div class="shop-item">
+                    <div class="shop-image-placeholder">
+                        <span>${product.imagePlaceholder}</span>
+                    </div>
+                    <div class="shop-info">
+                        <h3>${product.name}</h3>
+                        <p class="shop-price">$${product.price.toFixed(2)}</p>
+                        <p class="shop-description">${product.description}</p>
+                        <button class="shop-button" onclick="redirectToContact('${product.id}')">Contact for Purchase</button>
+                    </div>
+                </div>
+            `).join('');
+        });
+    </script>
 </body>
 </html>

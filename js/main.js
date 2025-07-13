@@ -87,6 +87,32 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+// Utility function to load products from JSON
+async function loadProducts() {
+    try {
+        const response = await fetch('../js/products.json');
+        if (!response.ok) {
+            throw new Error('Failed to load products');
+        }
+        const data = await response.json();
+        return data.products;
+    } catch (error) {
+        console.error('Error loading products:', error);
+        return [];
+    }
+}
+
+// Utility function to get URL parameters
+function getUrlParameter(name) {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get(name);
+}
+
+// Utility function to redirect to contact page with product parameter
+function redirectToContact(productId) {
+    window.location.href = `contact.html?product=${productId}`;
+}
+
 // Simple function to show page is interactive
 function showMessage(message) {
     const messageDiv = document.createElement('div');

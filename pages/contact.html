@@ -80,37 +80,8 @@
                             
                             <div class="form-group">
                                 <label for="products">Products Interested In *</label>
-                                <div class="products-container">
-                                    <div class="product-item">
-                                        <input type="checkbox" id="product-necklace" name="products" value="Elegant Beaded Necklace">
-                                        <label for="product-necklace">Elegant Beaded Necklace ($45.00)</label>
-                                        <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="Elegant Beaded Necklace">
-                                    </div>
-                                    <div class="product-item">
-                                        <input type="checkbox" id="product-ceramic" name="products" value="Hand-painted Ceramic Bowl">
-                                        <label for="product-ceramic">Hand-painted Ceramic Bowl ($32.00)</label>
-                                        <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="Hand-painted Ceramic Bowl">
-                                    </div>
-                                    <div class="product-item">
-                                        <input type="checkbox" id="product-wooden" name="products" value="Carved Wooden Bird">
-                                        <label for="product-wooden">Carved Wooden Bird ($78.00)</label>
-                                        <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="Carved Wooden Bird">
-                                    </div>
-                                    <div class="product-item">
-                                        <input type="checkbox" id="product-quilted" name="products" value="Quilted Wall Hanging">
-                                        <label for="product-quilted">Quilted Wall Hanging ($125.00)</label>
-                                        <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="Quilted Wall Hanging">
-                                    </div>
-                                    <div class="product-item">
-                                        <input type="checkbox" id="product-glass" name="products" value="Stained Glass Suncatcher">
-                                        <label for="product-glass">Stained Glass Suncatcher ($28.00)</label>
-                                        <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="Stained Glass Suncatcher">
-                                    </div>
-                                    <div class="product-item">
-                                        <input type="checkbox" id="product-leather" name="products" value="Handcrafted Leather Wallet">
-                                        <label for="product-leather">Handcrafted Leather Wallet ($65.00)</label>
-                                        <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="Handcrafted Leather Wallet">
-                                    </div>
+                                <div class="products-container" id="productsContainer">
+                                    <!-- Products will be loaded dynamically here -->
                                 </div>
                             </div>
                             
@@ -162,8 +133,50 @@
 
     <script src="../js/main.js"></script>
     <script>
-        // Enable/disable quantity inputs based on checkbox selection
-        document.addEventListener('DOMContentLoaded', function() {
+        // Load products and handle pre-selection
+        document.addEventListener('DOMContentLoaded', async function() {
+            const products = await loadProducts();
+            const productsContainer = document.getElementById('productsContainer');
+            const preselectedProductId = getUrlParameter('product');
+            
+            if (products.length === 0) {
+                productsContainer.innerHTML = '<p>Sorry, products could not be loaded at this time.</p>';
+                return;
+            }
+            
+            // Generate HTML for each product
+            productsContainer.innerHTML = products.map(product => `
+                <div class="product-item">
+                    <input type="checkbox" id="product-${product.id}" name="products" value="${product.name}">
+                    <label for="product-${product.id}">${product.name} ($${product.price.toFixed(2)})</label>
+                    <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="${product.name}">
+                </div>
+            `).join('');
+            
+            // Set up quantity input handling
+            setupQuantityInputs();
+            
+            // Handle pre-selection if product parameter exists
+            if (preselectedProductId) {
+                const product = products.find(p => p.id === preselectedProductId);
+                if (product) {
+                    const checkbox = document.getElementById(`product-${product.id}`);
+                    const quantityInput = document.querySelector(`[data-product="${product.name}"]`);
+                    
+                    if (checkbox && quantityInput) {
+                        checkbox.checked = true;
+                        quantityInput.disabled = false;
+                        quantityInput.style.opacity = '1';
+                        quantityInput.value = '1';
+                        
+                        // Show message about pre-selection
+                        showMessage(`${product.name} has been pre-selected for you!`, 'info');
+                    }
+                }
+            }
+        });
+        
+        function setupQuantityInputs() {
             const productCheckboxes = document.querySelectorAll('input[name="products"]');
             const quantityInputs = document.querySelectorAll('.quantity-input');
             
@@ -189,7 +202,7 @@
                     }
                 });
             });
-        });
+        }
 
         // Enhanced form handling with PDF generation
         document.getElementById('contactForm').addEventListener('submit', function(e) {

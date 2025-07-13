@@ -79,15 +79,44 @@
                             </div>
                             
                             <div class="form-group">
-                                <label for="subject">Subject</label>
-                                <select id="subject" name="subject">
-                                    <option value="">Select a subject</option>
-                                </select>
+                                <label for="products">Products Interested In *</label>
+                                <div class="products-container">
+                                    <div class="product-item">
+                                        <input type="checkbox" id="product-necklace" name="products" value="Elegant Beaded Necklace">
+                                        <label for="product-necklace">Elegant Beaded Necklace ($45.00)</label>
+                                        <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="Elegant Beaded Necklace">
+                                    </div>
+                                    <div class="product-item">
+                                        <input type="checkbox" id="product-ceramic" name="products" value="Hand-painted Ceramic Bowl">
+                                        <label for="product-ceramic">Hand-painted Ceramic Bowl ($32.00)</label>
+                                        <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="Hand-painted Ceramic Bowl">
+                                    </div>
+                                    <div class="product-item">
+                                        <input type="checkbox" id="product-wooden" name="products" value="Carved Wooden Bird">
+                                        <label for="product-wooden">Carved Wooden Bird ($78.00)</label>
+                                        <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="Carved Wooden Bird">
+                                    </div>
+                                    <div class="product-item">
+                                        <input type="checkbox" id="product-quilted" name="products" value="Quilted Wall Hanging">
+                                        <label for="product-quilted">Quilted Wall Hanging ($125.00)</label>
+                                        <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="Quilted Wall Hanging">
+                                    </div>
+                                    <div class="product-item">
+                                        <input type="checkbox" id="product-glass" name="products" value="Stained Glass Suncatcher">
+                                        <label for="product-glass">Stained Glass Suncatcher ($28.00)</label>
+                                        <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="Stained Glass Suncatcher">
+                                    </div>
+                                    <div class="product-item">
+                                        <input type="checkbox" id="product-leather" name="products" value="Handcrafted Leather Wallet">
+                                        <label for="product-leather">Handcrafted Leather Wallet ($65.00)</label>
+                                        <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="Handcrafted Leather Wallet">
+                                    </div>
+                                </div>
                             </div>
                             
                             <div class="form-group">
-                                <label for="message">Message *</label>
-                                <textarea id="message" name="message" rows="5" required placeholder="Tell us about your project or ask any questions..."></textarea>
+                                <label for="message">Additional Information</label>
+                                <textarea id="message" name="message" rows="5" placeholder="Tell us about your project, special requests, or ask any questions..."></textarea>
                             </div>
                             
                             <button type="submit" class="submit-button">Send Message</button>
@@ -133,12 +162,249 @@
 
     <script src="../js/main.js"></script>
     <script>
-        // Simple form handling
+        // Enable/disable quantity inputs based on checkbox selection
+        document.addEventListener('DOMContentLoaded', function() {
+            const productCheckboxes = document.querySelectorAll('input[name="products"]');
+            const quantityInputs = document.querySelectorAll('.quantity-input');
+            
+            // Initially disable all quantity inputs
+            quantityInputs.forEach(input => {
+                input.disabled = true;
+                input.style.opacity = '0.5';
+            });
+            
+            productCheckboxes.forEach(checkbox => {
+                checkbox.addEventListener('change', function() {
+                    const productName = this.value;
+                    const quantityInput = document.querySelector(`[data-product="${productName}"]`);
+                    
+                    if (this.checked) {
+                        quantityInput.disabled = false;
+                        quantityInput.style.opacity = '1';
+                        quantityInput.value = '1'; // Set default quantity
+                    } else {
+                        quantityInput.disabled = true;
+                        quantityInput.style.opacity = '0.5';
+                        quantityInput.value = '';
+                    }
+                });
+            });
+        });
+
+        // Enhanced form handling with PDF generation
         document.getElementById('contactForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            showMessage('Thank you for your message! We\'ll get back to you soon.');
-            this.reset();
+            
+            // Collect form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                message: document.getElementById('message').value,
+                products: []
+            };
+            
+            // Collect selected products with quantities
+            const productCheckboxes = document.querySelectorAll('input[name="products"]:checked');
+            productCheckboxes.forEach(checkbox => {
+                const productName = checkbox.value;
+                const quantityInput = document.querySelector(`[data-product="${productName}"]`);
+                const quantity = quantityInput.value || 1;
+                
+                formData.products.push({
+                    name: productName,
+                    quantity: parseInt(quantity)
+                });
+            });
+            
+            // Validate that at least one product is selected or there's a message
+            if (formData.products.length === 0 && !formData.message.trim()) {
+                showMessage('Please select at least one product or add a message.', 'error');
+                return;
+            }
+            
+            // Generate PDF and ZIP
+            generatePDFAndZip(formData);
         });
+
+        async function generatePDFAndZip(formData) {
+            try {
+                // Show loading message
+                showMessage('Generating your order summary...', 'info');
+                
+                // Create a text-based order summary (we'll upgrade to PDF when libraries are available)
+                let orderSummary = `MJ N' DJ CRAFTS - ORDER INQUIRY\n`;
+                orderSummary += `=====================================\n\n`;
+                
+                // Customer Information
+                orderSummary += `CUSTOMER INFORMATION:\n`;
+                orderSummary += `Name: ${formData.name}\n`;
+                orderSummary += `Email: ${formData.email}\n\n`;
+                
+                // Products Section
+                if (formData.products.length > 0) {
+                    orderSummary += `PRODUCTS OF INTEREST:\n`;
+                    let totalEstimate = 0;
+                    
+                    formData.products.forEach((product, index) => {
+                        // Extract price from product name
+                        const priceMatch = product.name.match(/\$(\d+\.?\d*)/);
+                        const price = priceMatch ? parseFloat(priceMatch[1]) : 0;
+                        const lineTotal = price * product.quantity;
+                        totalEstimate += lineTotal;
+                        
+                        orderSummary += `${index + 1}. ${product.name}\n`;
+                        orderSummary += `   Quantity: ${product.quantity}\n`;
+                        if (price > 0) {
+                            orderSummary += `   Unit Price: $${price.toFixed(2)}\n`;
+                            orderSummary += `   Subtotal: $${lineTotal.toFixed(2)}\n`;
+                        }
+                        orderSummary += `\n`;
+                    });
+                    
+                    if (totalEstimate > 0) {
+                        orderSummary += `ESTIMATED TOTAL: $${totalEstimate.toFixed(2)}\n\n`;
+                    }
+                }
+                
+                // Additional Information
+                if (formData.message.trim()) {
+                    orderSummary += `ADDITIONAL INFORMATION:\n`;
+                    orderSummary += `${formData.message}\n\n`;
+                }
+                
+                // Footer
+                orderSummary += `Generated on: ${new Date().toLocaleDateString()}\n`;
+                orderSummary += `Please email this document to: hello@mjndjcrafts.com`;
+                
+                // Create a text file (will be upgraded to PDF/ZIP later)
+                const blob = new Blob([orderSummary], { type: 'text/plain' });
+                
+                // Download the file
+                const downloadLink = document.createElement('a');
+                downloadLink.href = URL.createObjectURL(blob);
+                downloadLink.download = `mjndjcrafts-inquiry-${Date.now()}.txt`;
+                document.body.appendChild(downloadLink);
+                downloadLink.click();
+                document.body.removeChild(downloadLink);
+                
+                // Show success message and instructions
+                showInstructionsModal();
+                
+                // Reset form
+                document.getElementById('contactForm').reset();
+                
+                // Reset quantity inputs
+                const quantityInputs = document.querySelectorAll('.quantity-input');
+                quantityInputs.forEach(input => {
+                    input.disabled = true;
+                    input.style.opacity = '0.5';
+                    input.value = '';
+                });
+                
+            } catch (error) {
+                console.error('Error generating order summary:', error);
+                showMessage('There was an error generating your order summary. Please try again.', 'error');
+            }
+        }
+
+        function showInstructionsModal() {
+            // Create modal overlay
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.8);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 10000;
+            `;
+            
+            // Create modal content
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                padding: 30px;
+                border-radius: 10px;
+                max-width: 500px;
+                text-align: center;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            `;
+            
+            modalContent.innerHTML = `
+                <h2 style="color: #7b5fa9; margin-bottom: 20px;">📧 Next Steps</h2>
+                <p style="font-size: 16px; line-height: 1.6; margin-bottom: 20px;">
+                    Your order inquiry has been downloaded as a text file. 
+                    To complete your inquiry, please email this file to:
+                </p>
+                <div style="background: #f5f5f5; padding: 15px; border-radius: 5px; margin: 20px 0; font-family: monospace; font-size: 18px; color: #7b5fa9; font-weight: bold;">
+                    hello@mjndjcrafts.com
+                </div>
+                <p style="font-size: 14px; color: #666; margin-bottom: 25px;">
+                    We'll review your inquiry and get back to you within 24-48 hours with more details about your custom order.
+                    <br><br>
+                    <strong>Note:</strong> This will be upgraded to a PDF format in a future update for a more professional presentation.
+                </p>
+                <button onclick="this.parentElement.parentElement.remove()" style="
+                    background: #7b5fa9;
+                    color: white;
+                    border: none;
+                    padding: 12px 25px;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    font-size: 16px;
+                ">Got it!</button>
+            `;
+            
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+            
+            // Close modal when clicking outside
+            modal.addEventListener('click', function(e) {
+                if (e.target === modal) {
+                    modal.remove();
+                }
+            });
+        }
+
+        // Enhanced showMessage function with types
+        function showMessage(message, type = 'success') {
+            const messageDiv = document.createElement('div');
+            messageDiv.textContent = message;
+            
+            let backgroundColor = '#7b5fa9'; // default purple
+            if (type === 'error') backgroundColor = '#e74c3c';
+            if (type === 'info') backgroundColor = '#3498db';
+            
+            messageDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${backgroundColor};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 5px;
+                z-index: 9999;
+                font-size: 14px;
+                box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+                transition: opacity 0.3s ease;
+                max-width: 300px;
+            `;
+            
+            document.body.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                messageDiv.style.opacity = '0';
+                setTimeout(() => {
+                    if (messageDiv.parentElement) {
+                        messageDiv.parentElement.removeChild(messageDiv);
+                    }
+                }, 300);
+            }, type === 'info' ? 2000 : 3000);
+        }
     </script>
 </body>
 </html>

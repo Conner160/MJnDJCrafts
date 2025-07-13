@@ -55,9 +55,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
         
         if (scrollTop > 100) {
-            navbar.style.backgroundColor = 'rgba(139, 111, 71, 0.95)';
+            navbar.style.backgroundColor = 'rgba(234, 123, 197, 0.95)';
         } else {
-            navbar.style.backgroundColor = '#8b6f47';
+            navbar.style.backgroundColor = '#ea7bc5';
         }
         
         lastScrollTop = scrollTop;
@@ -95,7 +95,7 @@ function showMessage(message) {
         position: fixed;
         top: 20px;
         right: 20px;
-        background: #8b6f47;
+        background: #ea7bc5;
         color: white;
         padding: 15px 20px;
         border-radius: 5px;

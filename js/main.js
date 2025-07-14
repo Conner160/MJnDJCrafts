@@ -85,6 +85,9 @@ document.addEventListener('DOMContentLoaded', function() {
         item.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
         observer.observe(item);
     });
+
+    // Initialize shopping cart
+    ShoppingCart.init();
 });
 
 // Utility function to load products from JSON
@@ -139,4 +142,138 @@ function showMessage(message) {
             document.body.removeChild(messageDiv);
         }, 300);
     }, 3000);
+}
+
+// Shopping Cart Management Functions
+const ShoppingCart = {
+    // Get cart items from localStorage
+    getItems: function() {
+        try {
+            const items = localStorage.getItem('mjndjcrafts_cart');
+            return items ? JSON.parse(items) : [];
+        } catch (error) {
+            console.error('Error loading cart:', error);
+            return [];
+        }
+    },
+
+    // Save cart items to localStorage
+    saveItems: function(items) {
+        try {
+            localStorage.setItem('mjndjcrafts_cart', JSON.stringify(items));
+            this.updateCartCount();
+        } catch (error) {
+            console.error('Error saving cart:', error);
+        }
+    },
+
+    // Add item to cart
+    addItem: function(product) {
+        const items = this.getItems();
+        const existingItem = items.find(item => item.id === product.id);
+        
+        if (existingItem) {
+            existingItem.quantity += 1;
+        } else {
+            items.push({
+                id: product.id,
+                name: product.name,
+                price: product.price,
+                quantity: 1
+            });
+        }
+        
+        this.saveItems(items);
+        return existingItem ? 'updated' : 'added';
+    },
+
+    // Remove item from cart
+    removeItem: function(productId) {
+        const items = this.getItems();
+        const updatedItems = items.filter(item => item.id !== productId);
+        this.saveItems(updatedItems);
+    },
+
+    // Update item quantity
+    updateQuantity: function(productId, quantity) {
+        const items = this.getItems();
+        const item = items.find(item => item.id === productId);
+        
+        if (item) {
+            if (quantity <= 0) {
+                this.removeItem(productId);
+            } else {
+                item.quantity = quantity;
+                this.saveItems(items);
+            }
+        }
+    },
+
+    // Get total item count
+    getTotalCount: function() {
+        const items = this.getItems();
+        return items.reduce((total, item) => total + item.quantity, 0);
+    },
+
+    // Get total price
+    getTotalPrice: function() {
+        const items = this.getItems();
+        return items.reduce((total, item) => total + (item.price * item.quantity), 0);
+    },
+
+    // Clear cart
+    clear: function() {
+        localStorage.removeItem('mjndjcrafts_cart');
+        this.updateCartCount();
+    },
+
+    // Update cart count display
+    updateCartCount: function() {
+        const cartCount = document.getElementById('cartCount');
+        if (cartCount) {
+            const count = this.getTotalCount();
+            cartCount.textContent = count;
+            cartCount.style.display = count > 0 ? 'flex' : 'none';
+        }
+    },
+
+    // Initialize cart (call on page load)
+    init: function() {
+        this.updateCartCount();
+    }
+};
+
+// Function to add product to cart (called from shop page)
+function addToCart(productId) {
+    // First load all products to get product details
+    loadProducts().then(products => {
+        const product = products.find(p => p.id === productId);
+        if (product) {
+            const result = ShoppingCart.addItem(product);
+            if (result === 'added') {
+                showMessage(`${product.name} added to cart!`);
+            } else {
+                showMessage(`${product.name} quantity updated in cart!`);
+            }
+        } else {
+            showMessage('Product not found!', 'error');
+        }
+    }).catch(error => {
+        console.error('Error adding to cart:', error);
+        showMessage('Error adding to cart!', 'error');
+    });
+}
+
+// Function to navigate to cart (contact page with cart items)
+function goToCart() {
+    const cartItems = ShoppingCart.getItems();
+    if (cartItems.length === 0) {
+        showMessage('Your cart is empty!', 'info');
+        return;
+    }
+    
+    // Navigate to contact page - the contact page will detect and load cart items
+    const isInPagesFolder = window.location.pathname.includes('/pages/');
+    const contactUrl = isInPagesFolder ? 'contact.html?cart=true' : 'pages/contact.html?cart=true';
+    window.location.href = contactUrl;
 }

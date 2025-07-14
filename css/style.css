@@ -69,6 +69,32 @@ body {
     color: var(--secondary-color);
 }
 
+/* Shopping Cart Styles */
+.cart-item {
+    position: relative;
+}
+
+.cart-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1.2rem;
+}
+
+.cart-count {
+    background-color: var(--secondary-color);
+    color: white;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.8rem;
+    font-weight: bold;
+    min-width: 20px;
+}
+
 /* Mobile menu hamburger */
 .hamburger {
     display: none;

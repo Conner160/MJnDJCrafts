@@ -30,6 +30,11 @@
                     <li class="nav-item">
                         <a href="shop.html" class="nav-link">Shop</a>
                     </li>
+                    <li class="nav-item cart-item">
+                        <a href="#" class="nav-link cart-link" onclick="goToCart(); return false;">
+                            🛒 <span id="cartCount" class="cart-count">0</span>
+                        </a>
+                    </li>
                 </ul>
                 <div class="hamburger">
                     <span class="bar"></span>
@@ -133,11 +138,12 @@
 
     <script src="../js/main.js"></script>
     <script>
-        // Load products and handle pre-selection
+        // Load products and handle pre-selection or cart items
         document.addEventListener('DOMContentLoaded', async function() {
             const products = await loadProducts();
             const productsContainer = document.getElementById('productsContainer');
             const preselectedProductId = getUrlParameter('product');
+            const isCartMode = getUrlParameter('cart') === 'true';
             
             if (products.length === 0) {
                 productsContainer.innerHTML = '<p>Sorry, products could not be loaded at this time.</p>';
@@ -156,8 +162,34 @@
             // Set up quantity input handling
             setupQuantityInputs();
             
-            // Handle pre-selection if product parameter exists
-            if (preselectedProductId) {
+            // Handle cart mode
+            if (isCartMode) {
+                const cartItems = ShoppingCart.getItems();
+                if (cartItems.length > 0) {
+                    cartItems.forEach(cartItem => {
+                        const product = products.find(p => p.id === cartItem.id);
+                        if (product) {
+                            const checkbox = document.getElementById(`product-${product.id}`);
+                            const quantityInput = document.querySelector(`[data-product="${product.name}"]`);
+                            
+                            if (checkbox && quantityInput) {
+                                checkbox.checked = true;
+                                quantityInput.disabled = false;
+                                quantityInput.style.opacity = '1';
+                                quantityInput.value = cartItem.quantity;
+                            }
+                        }
+                    });
+                    
+                    // Show message about cart items
+                    const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+                    showMessage(`${itemCount} item(s) loaded from your cart!`, 'info');
+                } else {
+                    showMessage('Your cart is empty!', 'info');
+                }
+            }
+            // Handle pre-selection if product parameter exists (legacy support)
+            else if (preselectedProductId) {
                 const product = products.find(p => p.id === preselectedProductId);
                 if (product) {
                     const checkbox = document.getElementById(`product-${product.id}`);
@@ -302,6 +334,18 @@
                 
                 // Show success message and instructions
                 showInstructionsModal();
+                
+                // If this was from cart, optionally clear it
+                const isCartMode = getUrlParameter('cart') === 'true';
+                if (isCartMode) {
+                    // Ask user if they want to clear the cart
+                    setTimeout(() => {
+                        if (confirm('Order inquiry submitted! Would you like to clear your cart?')) {
+                            ShoppingCart.clear();
+                            showMessage('Cart cleared!', 'info');
+                        }
+                    }, 2000);
+                }
                 
                 // Reset form
                 document.getElementById('contactForm').reset();

@@ -30,11 +30,7 @@
                     <li class="nav-item">
                         <a href="shop.html" class="nav-link">Shop</a>
                     </li>
-                    <li class="nav-item cart-item">
-                        <a href="#" class="nav-link cart-link" onclick="goToCart(); return false;">
-                            🛒 <span id="cartCount" class="cart-count">0</span>
-                        </a>
-                    </li>
+
                 </ul>
                 <div class="hamburger">
                     <span class="bar"></span>
@@ -87,6 +83,14 @@
                                 <label for="products">Products Interested In *</label>
                                 <div class="products-container" id="productsContainer">
                                     <!-- Products will be loaded dynamically here -->
+                                </div>
+                                
+                                <!-- Inquiry Summary Section -->
+                                <div class="inquiry-summary" id="inquirySummary">
+                                    <h3>📋 Inquiry Summary</h3>
+                                    <div id="summaryContent">
+                                        <!-- Summary items will be populated dynamically -->
+                                    </div>
                                 </div>
                             </div>
                             
@@ -153,39 +157,40 @@
             // Generate HTML for each product
             productsContainer.innerHTML = products.map(product => `
                 <div class="product-item">
-                    <input type="checkbox" id="product-${product.id}" name="products" value="${product.name}">
+                    <input type="checkbox" id="product-${product.id}" name="products" value="${product.name}" data-price="${product.price}">
                     <label for="product-${product.id}">${product.name} ($${product.price.toFixed(2)})</label>
-                    <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="${product.name}">
+                    <input type="number" class="quantity-input" placeholder="Qty" min="1" data-product="${product.name}" data-price="${product.price}">
                 </div>
             `).join('');
             
-            // Set up quantity input handling
+            // Set up quantity input handling and summary updates
             setupQuantityInputs();
             
-            // Handle cart mode
-            if (isCartMode) {
-                const cartItems = ShoppingCart.getItems();
-                if (cartItems.length > 0) {
-                    cartItems.forEach(cartItem => {
-                        const product = products.find(p => p.id === cartItem.id);
-                        if (product) {
-                            const checkbox = document.getElementById(`product-${product.id}`);
-                            const quantityInput = document.querySelector(`[data-product="${product.name}"]`);
-                            
-                            if (checkbox && quantityInput) {
-                                checkbox.checked = true;
-                                quantityInput.disabled = false;
-                                quantityInput.style.opacity = '1';
-                                quantityInput.value = cartItem.quantity;
-                            }
+            // Always check cart items first (regardless of how user navigated to the page)
+            const cartItems = ShoppingCart.getItems();
+            if (cartItems.length > 0) {
+                cartItems.forEach(cartItem => {
+                    const product = products.find(p => p.id === cartItem.id);
+                    if (product) {
+                        const checkbox = document.getElementById(`product-${product.id}`);
+                        const quantityInput = document.querySelector(`[data-product="${product.name}"]`);
+                        
+                        if (checkbox && quantityInput) {
+                            checkbox.checked = true;
+                            quantityInput.disabled = false;
+                            quantityInput.style.opacity = '1';
+                            quantityInput.value = cartItem.quantity;
                         }
-                    });
-                    
-                    // Show message about cart items
+                    }
+                });
+                
+                // Update summary with cart items
+                updateInquirySummary();
+                
+                // Show message about cart items (only if came via cart button)
+                if (isCartMode) {
                     const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
                     showMessage(`${itemCount} item(s) loaded from your cart!`, 'info');
-                } else {
-                    showMessage('Your cart is empty!', 'info');
                 }
             }
             // Handle pre-selection if product parameter exists (legacy support)
@@ -200,6 +205,9 @@
                         quantityInput.disabled = false;
                         quantityInput.style.opacity = '1';
                         quantityInput.value = '1';
+                        
+                        // Update summary
+                        updateInquirySummary();
                         
                         // Show message about pre-selection
                         showMessage(`${product.name} has been pre-selected for you!`, 'info');
@@ -232,8 +240,68 @@
                         quantityInput.style.opacity = '0.5';
                         quantityInput.value = '';
                     }
+                    
+                    // Update summary when checkboxes change
+                    updateInquirySummary();
                 });
             });
+            
+            // Add event listeners to quantity inputs for real-time updates
+            quantityInputs.forEach(input => {
+                input.addEventListener('input', function() {
+                    updateInquirySummary();
+                });
+            });
+        }
+
+        // Function to update the inquiry summary
+        function updateInquirySummary() {
+            const summarySection = document.getElementById('inquirySummary');
+            const summaryContent = document.getElementById('summaryContent');
+            const productCheckboxes = document.querySelectorAll('input[name="products"]:checked');
+            
+            if (productCheckboxes.length === 0) {
+                summarySection.style.display = 'none';
+                return;
+            }
+            
+            let totalItems = 0;
+            let totalCost = 0;
+            let summaryHTML = '';
+            
+            productCheckboxes.forEach(checkbox => {
+                const productName = checkbox.value;
+                const price = parseFloat(checkbox.dataset.price);
+                const quantityInput = document.querySelector(`[data-product="${productName}"]`);
+                const quantity = parseInt(quantityInput.value) || 1;
+                const lineTotal = price * quantity;
+                
+                totalItems += quantity;
+                totalCost += lineTotal;
+                
+                summaryHTML += `
+                    <div class="summary-item">
+                        <div class="item-details">
+                            <div class="item-name">${productName}</div>
+                            <div class="item-quantity">Quantity: ${quantity}</div>
+                        </div>
+                        <div class="item-price">$${lineTotal.toFixed(2)}</div>
+                    </div>
+                `;
+            });
+            
+            // Add total row
+            summaryHTML += `
+                <div class="summary-item">
+                    <div class="item-details">
+                        <div class="item-name">Total (${totalItems} item${totalItems !== 1 ? 's' : ''})</div>
+                    </div>
+                    <div class="item-price">$${totalCost.toFixed(2)}</div>
+                </div>
+            `;
+            
+            summaryContent.innerHTML = summaryHTML;
+            summarySection.style.display = 'block';
         }
 
         // Enhanced form handling with PDF generation

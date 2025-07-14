@@ -227,13 +227,49 @@ const ShoppingCart = {
         this.updateCartCount();
     },
 
-    // Update cart count display
+    // Update cart count display (now updates floating cart instead of nav)
     updateCartCount: function() {
-        const cartCount = document.getElementById('cartCount');
-        if (cartCount) {
-            const count = this.getTotalCount();
-            cartCount.textContent = count;
-            cartCount.style.display = count > 0 ? 'flex' : 'none';
+        // Update floating cart
+        this.updateFloatingCart();
+    },
+
+    // Create and update floating cart
+    updateFloatingCart: function() {
+        const count = this.getTotalCount();
+        let floatingCart = document.getElementById('floatingCart');
+        
+        if (count > 0) {
+            // Create floating cart if it doesn't exist
+            if (!floatingCart) {
+                floatingCart = document.createElement('a');
+                floatingCart.id = 'floatingCart';
+                floatingCart.className = 'floating-cart';
+                floatingCart.href = '#';
+                floatingCart.innerHTML = `
+                    🛒
+                    <span class="cart-count">${count}</span>
+                `;
+                floatingCart.onclick = function(e) {
+                    e.preventDefault();
+                    goToCart();
+                    return false;
+                };
+                document.body.appendChild(floatingCart);
+            } else {
+                // Update existing floating cart
+                const cartCountSpan = floatingCart.querySelector('.cart-count');
+                if (cartCountSpan) {
+                    cartCountSpan.textContent = count;
+                }
+            }
+            
+            // Show the floating cart
+            floatingCart.style.display = 'flex';
+        } else {
+            // Hide floating cart when no items
+            if (floatingCart) {
+                floatingCart.style.display = 'none';
+            }
         }
     },
 
